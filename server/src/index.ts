@@ -7,6 +7,7 @@ import { Routes } from "./routes";
 import * as cors from 'cors'
 import * as https from 'https'
 import * as fs from 'fs'
+import { User } from "./entity/User";
 
 createConnection().then(async connection => {
     const key = fs.readFileSync('./key.pem', 'utf8');
@@ -35,8 +36,39 @@ createConnection().then(async connection => {
 
     }))
     app.post('/login', async (req, res) => {
+        const { email, password } = req.body;
+        const users = await getRepository(User).find({
+            where: {
+                password,
+                email
+            }
+        });
+        if (users.length === 0) {
+            res.status(400).send('User doesn\'t exist');
+        } else {
+            (req.session as any).user = users[0];
+            req.session.save();
+            res.json(users[0]);
+        }
 
-
+    })
+    app.post('/register', async (req, res) => {
+        const user = req.body as User;
+        const users = await getRepository(User).find({
+            where: {
+                password: user.password,
+                email: user.email
+            }
+        });
+        if (users.length > 0) {
+            res.status(400).send('User already exists');
+        } else {
+            const insertResult = await getRepository(User).insert(user);
+            user.id = insertResult.identifiers[0].id;
+            (req.session as any).user = user;
+            req.session.save();
+            res.json(user);
+        }
     })
     app.post('/logout', async (request: Request, response: Response) => {
         delete (request.session as any).user;
@@ -47,17 +79,23 @@ createConnection().then(async connection => {
         response.sendStatus(204);
     })
     app.get('/check', async (req, res) => {
-
+        const user = (req.session as any).user;
+        if (!user) {
+            res.status(401).send('User is not logged in');
+        } else {
+            res.json(user);
+        }
     })
-    /*     app.use((req, res, next) => {
-            const user = (req.session as any).user;
-            if (!user) {
-                res.sendStatus(403);
-            } else {
-                next();
-            }
-        }) */
-    app.use('/assets', express.static('file'))
+    app.use((req, res, next) => {
+        const user = (req.session as any).user;
+        if (!user) {
+            res.sendStatus(403);
+        } else {
+            next();
+        }
+    })
+    app.use('/file', express.static('file', { extensions: ['pdf'] }))
+    app.use('/img', express.static('img', { extensions: ['jpg', 'png', 'jpeg'] }))
     Routes.forEach(route => {
         app[route.method](route.route, ...route.action);
     });
