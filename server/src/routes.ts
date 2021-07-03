@@ -23,11 +23,11 @@ export const Routes: Route[] = [
     }, {
         method: 'post',
         route: '/book',
-        action: [uploadFile, uploadImage, createBook]
+        action: [uploadFile.single('file'), uploadImage.single('img'), createBook]
     }, {
         method: 'patch',
         route: '/book/:id',
-        action: [uploadFile, uploadImage, updateBook]
+        action: [uploadFile.single('file'), uploadImage.single('img'), updateBook]
     }, {
         method: 'delete',
         route: '/book/:id',
