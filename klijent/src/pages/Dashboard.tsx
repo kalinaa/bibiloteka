@@ -30,9 +30,9 @@ export default function Dashboard(props: Props) {
         setDescription(selectedBook?.descrpition || '');
         setPages(selectedBook?.pages || 0);
         setReleaseYear(selectedBook?.releaseYear ? selectedBook?.releaseYear + '' : '');
-        setSelAuthor(props.authors.find(element => element.id === selectedBook?.author.id)?.id || 0);
+        setSelAuthor(selectedBook?.author.id || 0);
         setSelTopics(selectedBook?.topics || []);
-    }, [selectedBook, props.authors])
+    }, [selectedBook])
     const onSubmit = async () => {
         const formData = new FormData();
 

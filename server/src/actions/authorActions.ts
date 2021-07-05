@@ -3,7 +3,7 @@ import { getRepository } from "typeorm";
 import { Author } from "../entity/Author";
 
 export async function getAllAuthors(req: Request, res: Response) {
-    const books = await getRepository(Author).find();
-    res.json(books);
+    const authors = await getRepository(Author).find();
+    res.json(authors);
 
 }

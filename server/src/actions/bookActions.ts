@@ -60,7 +60,7 @@ export async function updateBook(req: Request, res: Response) {
     res.sendStatus(204);
 }
 export async function deleteBook(req: Request, res: Response) {
-    const data = req.body as Book;
+
     const id = parseInt(req.params.id);
     if (isNaN(id)) {
         res.status(400).send('Id is not a number');

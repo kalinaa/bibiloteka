@@ -57,7 +57,7 @@ createConnection().then(async connection => {
         const user = req.body as User;
         const users = await getRepository(User).find({
             where: {
-                password: user.password,
+
                 email: user.email
             }
         });
@@ -79,6 +79,7 @@ createConnection().then(async connection => {
         })
         response.sendStatus(204);
     })
+
     app.get('/check', async (req, res) => {
         const user = (req.session as any).user;
         if (!user) {
@@ -95,6 +96,7 @@ createConnection().then(async connection => {
             next();
         }
     })
+
     app.use('/uploads', express.static('uploads'))
     Routes.forEach(route => {
         app[route.method](route.route, ...route.action);

@@ -19,14 +19,7 @@ export default function BooksPage(props: Props) {
     const [sort, setSort] = useState(1);
     const [name, setName] = useState('');
 
-    const addTopic = (topic: number) => {
-        setSelectedTopics(prev => {
-            if (prev.includes(topic)) {
-                return prev;
-            }
-            return [...prev, topic];
-        })
-    }
+
 
     return (
         <Container >
@@ -66,9 +59,9 @@ export default function BooksPage(props: Props) {
                 </Grid.Row>
                 {
                     chunks(props.books.filter(element => {
-                        return element.title.includes(name) && selectedTopics.length === 0 || element.topics.reduce((prev, curr) => {
+                        return element.title.includes(name) && (selectedTopics.length === 0 || element.topics.reduce((prev, curr) => {
                             return prev || selectedTopics.includes(curr.id);
-                        }, false as boolean);
+                        }, false as boolean));
                     }).sort((a, b) => {
                         return sort * ((a.title.toLowerCase() > b.title.toLowerCase()) ? 1 : -1);
                     }), 4).map(row => {

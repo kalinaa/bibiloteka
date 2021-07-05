@@ -22,7 +22,9 @@ export default withRouter(function BookPage(props: Props & RouteComponentProps) 
     }
     return (
         <Container style={{ paddingBottom: '50px' }} >
-            <Header textAlign='center'>{book.title}</Header>
+            <Header textAlign='center'>
+                <h1>{book.title}</h1>
+            </Header>
             <Image src={SERVER + '/uploads/' + book.image} fluid wrapped bordered />
             <Segment style={{ paddingBottom: '30px' }}>
                 <Header textAlign='center'>Details</Header>
@@ -59,7 +61,7 @@ export default withRouter(function BookPage(props: Props & RouteComponentProps) 
                         <Grid.Column textAlign='right' width='6'>
                             {book.topics.reduce((prev, curr) => {
                                 return prev + curr.name + ', ';
-                            }, '')}
+                            }, '').slice(0, -2)}
                         </Grid.Column>
                     </Grid.Row>
                     <Grid.Row>

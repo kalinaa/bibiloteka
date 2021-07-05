@@ -57,9 +57,5 @@ export const Routes: Route[] = [
         method: 'get',
         route: '/author',
         action: [getAllAuthors]
-    }, {
-        method: 'post',
-        route: '/review',
-        action: [createReview]
     }
 ];

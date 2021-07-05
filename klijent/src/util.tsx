@@ -17,7 +17,7 @@ export function onTableRowClick<T>(val: T, setState: (setter: (prev: T | undefin
 export function chunks<T>(arr: T[], size = 1) {
     const res = [];
     for (let i = 0; i < arr.length / size; i++) {
-        res[i] = arr.slice(i, i + size);
+        res[i] = arr.slice(i, Math.min(i + size, arr.length));
     }
     return res;
 }

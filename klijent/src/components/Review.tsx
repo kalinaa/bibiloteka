@@ -1,6 +1,6 @@
 import React from 'react'
+import { Comment, Rating, Segment } from 'semantic-ui-react'
 import { Review as ReviewType } from '../tipovi'
-import { Comment, Icon, Rating, Segment } from 'semantic-ui-react'
 interface Props {
     review: ReviewType
 }

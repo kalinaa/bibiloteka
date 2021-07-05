@@ -1,19 +1,18 @@
-import React, { useEffect } from 'react';
-import './App.css';
-import { useState } from 'react';
-import { Author, Book, Review, Topic, User } from './tipovi';
-import { SERVER } from './util';
 import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import { Redirect, Route, Switch } from 'react-router';
+import './App.css';
 import Loading from './components/Loading';
-import { Switch, Route, Redirect } from 'react-router';
 import Navbar from './components/Navbar';
-import Login from './pages/Login';
-import Register from './pages/Register';
 import PrivateRoute from './components/PrivateRoute';
-import BooksPage from './pages/BooksPage';
 import BookPage from './pages/BookPage';
+import BooksPage from './pages/BooksPage';
 import Dashboard from './pages/Dashboard';
 import Home from './pages/Home';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import { Author, Book, Review, Topic, User } from './tipovi';
+import { SERVER } from './util';
 axios.defaults.withCredentials = true;
 
 function App() {
@@ -131,7 +130,7 @@ function App() {
           )}
 
         </Route>
-        <PrivateRoute active={user?.isAdmin || false} path='/dashboard' redirect='/login'>
+        <PrivateRoute active={user?.isAdmin || false} path='/dashboard' redirect='/'>
           <Dashboard
             books={books}
             authors={authors}
@@ -148,7 +147,7 @@ function App() {
           <BooksPage authors={authors} topics={topics} books={books} />
         </PrivateRoute>
         <PrivateRoute active={user !== undefined} path='/' redirect='/login'>
-          <Home />
+          <Home books={books} topics={topics} />
         </PrivateRoute>
 
 
