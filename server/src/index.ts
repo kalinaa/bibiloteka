@@ -95,8 +95,7 @@ createConnection().then(async connection => {
             next();
         }
     })
-    app.use('/file', express.static('file', { extensions: ['pdf'] }))
-    app.use('/img', express.static('img', { extensions: ['jpg', 'png', 'jpeg'] }))
+    app.use('/uploads', express.static('uploads'))
     Routes.forEach(route => {
         app[route.method](route.route, ...route.action);
     });

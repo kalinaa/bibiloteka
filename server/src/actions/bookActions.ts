@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
-import { getRepository } from "typeorm";
+import * as fs from 'fs';
+import * as path from 'path';
+import { getManager, getRepository } from "typeorm";
 import { Book } from "../entity/Book";
 
 
@@ -10,10 +12,27 @@ export async function getAllBooks(req: Request, res: Response) {
 }
 
 export async function createBook(req: Request, res: Response) {
-    const data = req.body as Book;
-    const insertResult = await getRepository(Book).insert(data);
+    const data = req.body
+    const topics = data.topics as string;
+    data.topics = topics.split(';').map(element => {
+        return {
+            id: parseInt(element)
+        }
+    })
+    data.topics.pop();
+    console.log(data);
+    const book = await getManager().save(Book, {
+        ...data,
+        descrition: data.description,
+        author: {
+            id: parseInt(data.author),
+        },
+        releaseYear: parseInt(data.releaseYear),
+        pages: parseInt(data.pages)
+    });
+
     res.json({
-        id: insertResult.identifiers[0].id
+        id: book.id
     })
 }
 export async function updateBook(req: Request, res: Response) {
@@ -35,4 +54,23 @@ export async function deleteBook(req: Request, res: Response) {
     }
     await getRepository(Book).delete(id);
     res.sendStatus(204);
+}
+
+
+export function renameFile(name: string, fliename: string) {
+
+    return function handleUpload(request: Request, res: Response, next?: any) {
+        if (!request.files) {
+            next();
+        }
+        const file = request.files[fliename][0];
+        const tempPath = file.path;
+        const targetPath = path.resolve('uploads/' + file.originalname);
+        const data = request.body;
+        data[name] = file.originalname;
+        fs.rename(tempPath, targetPath, err => {
+
+        })
+        next();
+    }
 }
