@@ -36,7 +36,7 @@ export const Routes: Route[] = [
     }, {
         method: 'patch',
         route: '/book/:id',
-        action: [upload, updateBook]
+        action: [upload, renameFile('file', 'file'), renameFile('image', 'img'), updateBook]
     }, {
         method: 'delete',
         route: '/book/:id',
@@ -57,5 +57,9 @@ export const Routes: Route[] = [
         method: 'get',
         route: '/author',
         action: [getAllAuthors]
+    }, {
+        method: 'post',
+        route: '/review',
+        action: [createReview]
     }
 ];

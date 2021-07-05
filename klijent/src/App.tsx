@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import './App.css';
 import { useState } from 'react';
-import { Author, Book, Topic, User } from './tipovi';
+import { Author, Book, Review, Topic, User } from './tipovi';
 import { SERVER } from './util';
 import axios from 'axios';
 import Loading from './components/Loading';
@@ -13,6 +13,7 @@ import PrivateRoute from './components/PrivateRoute';
 import BooksPage from './pages/BooksPage';
 import BookPage from './pages/BookPage';
 import Dashboard from './pages/Dashboard';
+import Home from './pages/Home';
 axios.defaults.withCredentials = true;
 
 function App() {
@@ -69,6 +70,47 @@ function App() {
   if (fetching) {
     return <Loading />
   }
+  const addBook = (b: Book) => {
+    setBooks(prev => {
+      return [...prev, b];
+    })
+  }
+  const createReview = async (c: Review) => {
+    c.user = user;
+    const res = await axios.post(SERVER + '/review', c as Review)
+    const id = res.data.id;
+    setBooks(prev => {
+
+      return prev.map(element => {
+        if (element.id === c.book?.id) {
+          return {
+            ...element, reviews: [...element.reviews, {
+              ...c, id
+            }]
+          }
+        }
+        return element;
+
+      })
+
+    })
+  }
+  const updateBook = (b: Book) => {
+    setBooks(prev => {
+      return prev.map(element => {
+        if (element.id === b.id) {
+          return b;
+        }
+        return element;
+      })
+    })
+  }
+  const deleteBook = (id: number) => {
+    setBooks(prev => {
+      return prev.filter(element => element.id !== id);
+    })
+  }
+
   return (
     <>
       <Navbar full={user !== undefined} logout={() => { setUser(undefined) }} admin={user?.isAdmin} />
@@ -90,16 +132,23 @@ function App() {
 
         </Route>
         <PrivateRoute active={user?.isAdmin || false} path='/dashboard' redirect='/login'>
-          <Dashboard books={books} authors={authors} topics={topics} />
+          <Dashboard
+            books={books}
+            authors={authors}
+            topics={topics}
+            createBook={addBook}
+            updateBook={updateBook}
+            deleteBook={deleteBook}
+          />
         </PrivateRoute>
         <PrivateRoute active={user !== undefined} path='/books/:id' redirect='/login'>
-          <BookPage getBook={getBook} />
+          <BookPage getBook={getBook} addReview={createReview} />
         </PrivateRoute>
         <PrivateRoute active={user !== undefined} path='/books' redirect='/login'>
           <BooksPage authors={authors} topics={topics} books={books} />
         </PrivateRoute>
         <PrivateRoute active={user !== undefined} path='/' redirect='/login'>
-
+          <Home />
         </PrivateRoute>
 
 

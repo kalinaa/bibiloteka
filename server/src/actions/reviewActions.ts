@@ -6,16 +6,17 @@ import { Review } from "../entity/Review";
 export async function createReview(req: Request, res: Response) {
 
     const data = req.body;
+    const user = (req.session as any).user;
     const insertResult = await getRepository(Review).insert({
         book: {
-            id: data.book
+            id: data.book.id,
+        },
+        user: {
+            id: user.id
         },
         content: data.content,
-        rating: data.rating,
-        user: {
-            id: (req.session as any).user.id
-        }
-    });
+        rating: data.rating
+    })
     res.json({
         id: insertResult.identifiers[0].id
     })

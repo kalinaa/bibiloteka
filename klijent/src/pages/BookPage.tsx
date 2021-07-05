@@ -1,16 +1,21 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Redirect, RouteComponentProps, withRouter } from 'react-router'
-import { Container, Divider, Grid, Header, Image, List, Segment } from 'semantic-ui-react'
-import { Book } from '../tipovi'
-import { SERVER } from '../util'
-
+import { Button, Comment, Container, Form, Grid, Header, Image, Rating, Segment } from 'semantic-ui-react'
+import RewiewComponent from '../components/Review'
+import { Book, Review } from '../tipovi'
+import { SERVER, setFormState } from '../util'
 interface Props {
-    getBook: (id: number) => Book | undefined
+    getBook: (id: number) => Book | undefined,
+    addReview: (comm: Review) => void
 }
 
 export default withRouter(function BookPage(props: Props & RouteComponentProps) {
     const id = (props.match.params as any).id;
     const book = props.getBook(parseInt(id));
+    const [reviewText, setReviewText] = useState('');
+    const [stars, setStars] = useState(0);
+
+
 
     if (!book) {
         return <Redirect to='/books' />
@@ -57,17 +62,53 @@ export default withRouter(function BookPage(props: Props & RouteComponentProps) 
                             }, '')}
                         </Grid.Column>
                     </Grid.Row>
+                    <Grid.Row>
+                        <Grid.Column width='6'>
+                            <b>Preview</b>
+                        </Grid.Column>
+                        <Grid.Column textAlign='right' width='6'>
+                            <a href={`${SERVER}/uploads/${book.file}`} target='_blank' rel="noreferrer">Preview</a>
+                        </Grid.Column>
+                    </Grid.Row>
 
-                    <p>
-                        {book.descrpition}
-                    </p>
                 </Grid>
             </Segment>
             <Segment>
-                <Header>Reviews</Header>
+                <Header textAlign='center'>Description</Header>
                 {
-
+                    book.descrpition.split('\n').map(element => {
+                        return (
+                            <p>
+                                {element}
+                            </p>
+                        )
+                    })
                 }
+            </Segment>
+            <Segment>
+                <Header>Reviews</Header>
+                <Comment.Group>
+                    {
+                        book.reviews.map(element => {
+                            return <RewiewComponent review={element} />
+                        })
+                    }
+                    <Form reply onSubmit={() => {
+                        props.addReview({
+                            content: reviewText,
+                            rating: stars,
+                            book
+                        })
+                    }}>
+                        <Rating maxRating={5} rating={stars} onRate={(e, data) => {
+                            setStars(Number(data.rating));
+                        }} />
+                        <Form.TextArea required value={reviewText} onChange={setFormState(setReviewText)} />
+
+                        <br />
+                        <Button content='Add review' labelPosition='left' icon='edit' primary fluid />
+                    </Form>
+                </Comment.Group>
             </Segment>
         </Container>
     )

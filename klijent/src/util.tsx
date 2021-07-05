@@ -14,3 +14,10 @@ export function onTableRowClick<T>(val: T, setState: (setter: (prev: T | undefin
         return val
     })
 }
+export function chunks<T>(arr: T[], size = 1) {
+    const res = [];
+    for (let i = 0; i < arr.length / size; i++) {
+        res[i] = arr.slice(i, i + size);
+    }
+    return res;
+}

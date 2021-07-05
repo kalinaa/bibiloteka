@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Button, Dropdown, Form, Grid, List, Ref } from 'semantic-ui-react'
+import { Button, Dropdown, Form, Grid, List, Ref, Segment } from 'semantic-ui-react'
 import BooksTable from '../components/BooksTable'
 import { Author, Book, Topic } from '../tipovi'
 import { onTableRowClick, SERVER, setFormState } from '../util'
@@ -9,6 +9,9 @@ interface Props {
     books: Book[],
     authors: Author[],
     topics: Topic[],
+    createBook: (b: Book) => void,
+    updateBook: (b: Book) => void,
+    deleteBook: (id: number) => void
 
 }
 export default function Dashboard(props: Props) {
@@ -52,7 +55,47 @@ export default function Dashboard(props: Props) {
         formData.append('topics', selTopics.reduce((prev, curr) => {
             return prev + curr.id + ';';
         }, ''))
-        await axios.post(SERVER + '/book', formData);
+        if (selectedBook) {
+            await axios.patch(SERVER + '/book/' + selectedBook.id, formData);
+            props.updateBook({
+                ...selectedBook,
+                author: props.authors.find(element => element.id === selAuthor)!,
+                descrpition: description,
+                image: img.files[0].name,
+                pages: pages,
+                releaseYear: parseInt(releaseYear),
+
+                title: title,
+                file: file.files[0].name,
+                topics: selTopics
+
+            })
+            setSelectedBook(undefined);
+        } else {
+            const res = await axios.post(SERVER + '/book', formData);
+            props.createBook({
+                id: res.data.id,
+                author: props.authors.find(element => element.id === selAuthor)!,
+                descrpition: description,
+                image: img.files[0].name,
+                pages: pages,
+                releaseYear: parseInt(releaseYear),
+                reviews: [],
+                title: title,
+                file: file.files[0].name,
+                topics: selTopics
+
+            })
+        }
+
+    }
+    const onDelete = async () => {
+        if (!selectedBook) {
+            return
+        }
+        await axios.delete(SERVER + '/book/' + selectedBook.id);
+        props.deleteBook(selectedBook.id || 0);
+        setSelectedBook(undefined);
 
     }
     return (
@@ -66,7 +109,7 @@ export default function Dashboard(props: Props) {
                 </Grid.Column>
                 <Grid.Column textAlign='center' width='6'>
                     <h3>{selectedBook ? 'Update' : 'Create'} book</h3>
-                    <Form onSubmit={onSubmit} >
+                    <Form onSubmit={onSubmit} style={{ backgroundColor: 'white' }} >
                         <Form.Input label='Title' required value={title} onChange={setFormState(setTitle)} />
                         <Form.Input label='Release year' required value={releaseYear} onChange={setFormState(setReleaseYear)} />
                         <Form.Input label='No. pages' required value={pages} onChange={setFormState(setPages)} />
@@ -87,7 +130,13 @@ export default function Dashboard(props: Props) {
                         })} />
                         <Form.TextArea value={description} label='Description' onChange={setFormState(setDescription)} />
                         <Form.Button fluid primary >Save</Form.Button>
+
                     </Form>
+                    {
+                        selectedBook && (
+                            <Button negative fluid style={{ marginTop: '4px' }} onClick={onDelete} >Delete</Button>
+                        )
+                    }
                 </Grid.Column>
                 <Grid.Column className='padding-top' width='4'>
                     <Dropdown className='padding-top' fluid selection header=' Add topic' options={props.topics.map(element => {
@@ -105,25 +154,27 @@ export default function Dashboard(props: Props) {
                             }
                         }
                     })} />
-                    <h5>Selected topics</h5>
-                    <List divided verticalAlign='middle'>
-                        {
-                            selTopics.map(element => {
-                                return (
-                                    <List.Item key={element.id}>
-                                        <List.Content floated='right'>
-                                            <Button onClick={() => {
-                                                setSelTopics(prev => {
-                                                    return prev.filter(val => val.id !== element.id)
-                                                })
-                                            }} negative>X</Button>
-                                        </List.Content>
-                                        <List.Content>{element.name}</List.Content>
-                                    </List.Item>
-                                )
-                            })
-                        }
-                    </List>
+                    <Segment style={{ backgroundColor: 'white' }}>
+                        <h5>Selected topics</h5>
+                        <List divided verticalAlign='middle'>
+                            {
+                                selTopics.map(element => {
+                                    return (
+                                        <List.Item key={element.id}>
+                                            <List.Content floated='right'>
+                                                <Button onClick={() => {
+                                                    setSelTopics(prev => {
+                                                        return prev.filter(val => val.id !== element.id)
+                                                    })
+                                                }} negative>X</Button>
+                                            </List.Content>
+                                            <List.Content>{element.name}</List.Content>
+                                        </List.Item>
+                                    )
+                                })
+                            }
+                        </List>
+                    </Segment>
                 </Grid.Column>
             </Grid.Row>
         </Grid>
